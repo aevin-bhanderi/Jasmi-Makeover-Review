@@ -79,7 +79,21 @@
 <!-- Logo + Heading -->
 <img src="https://aevin-bhanderi.github.io/Jasmi-Makeover-Review/logo.png" 
      alt="Jasmi Makeover Logo" 
-     style="width:120px; margin-bottom:15px; border-radius:10px;">
+     style="
+        width:120px; 
+        height:120px; 
+        border-radius:50%; 
+        padding:5px; 
+        background: conic-gradient(#f6d365, #fda085, #f6d365); 
+        animation: rotateBorder 4s linear infinite; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+     ">  
+<style>
+@keyframes rotateBorder {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 <h1>Jasmi Makeover - Random Review Generator</h1>
 <div class="container">
   <div id="review" class="review-box">Loading reviews...</div>
@@ -146,6 +160,7 @@
 
 </body>
 </html>
+
 
 
 
