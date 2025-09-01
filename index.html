@@ -1,133 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jasmi Makeover - Random Review Generator</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(120deg, #f6d365, #fda085);
-      background-size: 400% 400%;
-      animation: gradientBG 10s ease infinite;
-      color: #333;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    h1 {
-      margin-top: 20px;
-      color: #fff;
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
-    }
-    .container {
-      max-width: 600px;
-      margin: 30px auto;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .review-box {
-      font-size: 18px;
-      font-weight: 500;
-      color: #222;
-      padding: 15px;
-      background: #fefefe;
-      border-radius: 10px;
-      min-height: 100px;
-      margin: 20px 0;
-      border: 1px solid #ddd;
-      line-height: 1.5;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 10px;
-      border: none;
-      border-radius: 25px;
-      background: #ff7e5f;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #eb5757;
-      transform: scale(1.05);
-    }
-    .counter {
-      margin-top: 15px;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jasmi Makeover Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            text-align: center;
+            padding: 20px;
+        }
+        .review-box {
+            max-width: 500px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 15px;
+            border: none;
+            background: #ff4081;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #e73370;
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            color: #555;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Jasmi Makeover - Random Review Generator</h1>
-  <div class="container">
-    <div id="review" class="review-box">Loading review...</div>
-    <button onclick="generateReview()">Generate Review</button>
-    <button onclick="copyReview()">Copy Review</button>
-    <button onclick="copyAndOpen()">Copy & Review on Google</button>
-    <div class="counter" id="counter">Total Copies: 0</div>
-  </div>
 
-  <script>
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbzoAqqJ15stQ8kW_pDutJIMZ_jew2lnLqQClVUN8RhTmpJN5SiPnYftsClLChDRxpes/exec";
+    <div class="review-box">
+        <h2>Customer Review</h2>
+        <p id="review">Loading review...</p>
+        <button onclick="getRandomReview()">Show Another Review</button>
+    </div>
 
-    let reviews = [];
-    let usedReviews = new Set();
-    let copyCount = 0;
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzoAqqJ15stQ8kW_pDutJIMZ_jew2lnLqQClVUN8RhTmpJN5SiPnYftsClLChDRxpes/exec";
+        let reviews = [];
 
-    const reviewDiv = document.getElementById("review");
-    const counterDiv = document.getElementById("counter");
+        async function fetchReviews() {
+            try {
+                const res = await fetch(scriptURL);
+                const data = await res.json();
+                // Assuming the sheet returns array of objects with {review: "text"} or array of strings
+                reviews = data.map(item => item.review || item);
+                getRandomReview();
+            } catch (err) {
+                document.getElementById("review").innerText = "Failed to load reviews!";
+            }
+        }
 
-    async function fetchReviews() {
-      try {
-        const response = await fetch(webAppUrl);
-        const data = await response.json();
-        reviews = data.map(item => item.Review); // Take only "Review" column text
-        generateReview(); // Show one review on load
-      } catch (err) {
-        reviewDiv.innerText = "Failed to load reviews.";
-        console.error("Error fetching reviews:", err);
-      }
-    }
+        function getRandomReview() {
+            if (reviews.length === 0) return;
+            const randomIndex = Math.floor(Math.random() * reviews.length);
+            document.getElementById("review").innerText = reviews[randomIndex];
+        }
 
-    function generateReview() {
-      if (reviews.length === 0) {
-        reviewDiv.innerText = "No reviews available.";
-        return;
-      }
-      if (usedReviews.size === reviews.length) usedReviews.clear();
-      let review;
-      do {
-        review = reviews[Math.floor(Math.random() * reviews.length)];
-      } while (usedReviews.has(review) && usedReviews.size < reviews.length);
-      usedReviews.add(review);
-      reviewDiv.innerText = review;
-    }
+        // Fetch reviews on page load
+        fetchReviews();
+    </script>
 
-    function copyReview() {
-      navigator.clipboard.writeText(reviewDiv.innerText);
-      copyCount++;
-      counterDiv.innerText = "Total Copies: " + copyCount;
-    }
-
-    function copyAndOpen() {
-      copyReview();
-      window.open("https://g.page/r/CX0TRbKNpexPEBM/review", "_blank");
-    }
-
-    // Fetch reviews on page load
-    window.onload = fetchReviews;
-  </script>
 </body>
 </html>
-
