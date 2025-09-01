@@ -3,85 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Random Review Generator</title>
+  <title>Jasmi Makeover - Random Review Generator</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      padding: 20px;
-    }
-    h1 {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(120deg, #f6d365, #fda085);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
       color: #333;
     }
-    #reviewBox {
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
       margin-top: 20px;
+      color: #fff;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .review-box {
+      font-size: 18px;
+      font-weight: 500;
+      color: #222;
       padding: 15px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-      min-height: 50px;
-      font-size: 16px;
-      color: #444;
+      background: #fefefe;
+      border-radius: 10px;
+      min-height: 100px;
+      margin: 20px 0;
+      border: 1px solid #ddd;
+      line-height: 1.5;
     }
+
     button {
-      margin-top: 20px;
       padding: 10px 20px;
+      margin: 10px;
       border: none;
-      border-radius: 5px;
-      background: #007bff;
+      border-radius: 25px;
+      background: #ff7e5f;
       color: white;
-      cursor: pointer;
       font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
     }
+
     button:hover {
-      background: #0056b3;
+      background: #eb5757;
+      transform: scale(1.05);
+    }
+
+    .counter {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
     }
   </style>
 </head>
 <body>
 
-  <h1>Random Review Generator</h1>
-  <div id="reviewBox">Loading reviews...</div>
-  <button onclick="showRandomReview()">Show Random Review</button>
+<h1>Jasmi Makeover - Random Review Generator</h1>
+<div class="container">
+  <div id="review" class="review-box">Loading reviews...</div>
+  <button onclick="generateReview()">Generate Review</button>
+  <button onclick="copyReview()">Copy Review</button>
+  <button onclick="copyAndOpen()">Copy & Review on Google</button>
+  <div class="counter" id="counter">Total Copies: 0</div>
+</div>
 
-  <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzoAqqJ15stQ8kW_pDutJIMZ_jew2lnLqQClVUN8RhTmpJN5SiPnYftsClLChDRxpes/exec";
-    let reviews = [];
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxFyEP9sCOogGgh7EGugMOeZ6LHOJ2vbFcw1X0tNl3Aa1NgI3_149v9FfUyntpWJ7g/exec";
+  let reviews = [];
+  let usedReviews = new Set();
+  let copyCount = 0;
 
-    // Fetch reviews from Google Apps Script
-    async function fetchReviews() {
-      try {
-        let response = await fetch(apiUrl);
-        let data = await response.json();
-        if (Array.isArray(data)) {
-          reviews = data.map(item => item.Review || item.review || item[0]); // Handle different sheet formats
-          showRandomReview();
-        } else {
-          document.getElementById("reviewBox").innerText = "No reviews found!";
-        }
-      } catch (error) {
-        document.getElementById("reviewBox").innerText = "Failed to load reviews!";
-        console.error("Error fetching reviews:", error);
-      }
-    }
+  const reviewDiv = document.getElementById("review");
+  const counterDiv = document.getElementById("counter");
 
-    // Show a random review
-    function showRandomReview() {
-      if (reviews.length > 0) {
-        let randomIndex = Math.floor(Math.random() * reviews.length);
-        document.getElementById("reviewBox").innerText = reviews[randomIndex];
+  async function fetchReviews() {
+    try {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      // If your sheet returns array of strings
+      reviews = Array.isArray(data) ? data : (data.reviews || []);
+      
+      if (reviews.length === 0) {
+        reviewDiv.innerText = "No reviews available!";
       } else {
-        document.getElementById("reviewBox").innerText = "No reviews available!";
+        generateReview();
       }
+    } catch (err) {
+      reviewDiv.innerText = "Failed to load reviews!";
+      console.error(err);
     }
+  }
 
-    // Load reviews on page load
-    fetchReviews();
-  </script>
+  function generateReview() {
+    if (reviews.length === 0) return;
+
+    if (usedReviews.size === reviews.length) usedReviews.clear();
+
+    let review;
+    do {
+      review = reviews[Math.floor(Math.random() * reviews.length)];
+    } while (usedReviews.has(review));
+
+    usedReviews.add(review);
+    reviewDiv.innerText = review;
+  }
+
+  function copyReview() {
+    navigator.clipboard.writeText(reviewDiv.innerText);
+    copyCount++;
+    counterDiv.innerText = "Total Copies: " + copyCount;
+  }
+
+  function copyAndOpen() {
+    copyReview();
+    window.open("https://g.page/r/CX0TRbKNpexPEBM/review", "_blank");
+  }
+
+  window.onload = fetchReviews;
+</script>
 
 </body>
 </html>
