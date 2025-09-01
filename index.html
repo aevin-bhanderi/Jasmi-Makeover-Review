@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jasmi Makeover Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f8cdda, #1d2b64);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .review-box {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            width: 350px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .review-text {
+            font-size: 18px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #e91e63;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="review-box">
+        <h1>Jasmi Makeover Reviews</h1>
+        <p class="review-text" id="review">Loading review...</p>
+        <button class="btn" onclick="fetchReview()">Generate New Review</button>
+    </div>
+
+    <script>
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbzoAqqJ15stQ8kW_pDutJIMZ_jew2lnLqQClVUN8RhTmpJN5SiPnYftsClLChDRxpes/exec";
+
+        async function fetchReview() {
+            try {
+                const response = await fetch(webAppUrl);
+                const data = await response.json();
+
+                if (data.reviews && data.reviews.length > 0) {
+                    const randomReview = data.reviews[Math.floor(Math.random() * data.reviews.length)];
+                    document.getElementById("review").innerText = randomReview;
+                } else {
+                    document.getElementById("review").innerText = "No reviews available.";
+                }
+            } catch (error) {
+                document.getElementById("review").innerText = "Error loading review.";
+            }
+        }
+
+        // Load one review automatically on page load
+        window.onload = fetchReview;
+    </script>
+
+</body>
+</html>
